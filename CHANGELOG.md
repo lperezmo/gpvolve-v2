@@ -1,6 +1,43 @@
 # CHANGELOG
 
 
+## v1.0.1 (2026-05-17)
+
+### Performance Improvements
+
+- **sample**: Rayon-parallel walker sampling in Rust
+  ([`932f3fb`](https://github.com/lperezmo/gpvolve-v2/commit/932f3fbb96d178b893f107fd4f7b17090cf64aa1))
+
+The per-walker step loop in sample_paths was the only profiled hot path that scaled badly: 24 s for
+  5k walkers on a 2^6 binary map, 104 s on 2^14. Everything else (transition matrix assembly,
+  stationary, TPT) is already vectorized in numpy/scipy and runs under a second on 2^14 maps.
+
+The Rust kernel sample_paths_csr does three things:
+
+1. Precomputes per-row cumulative distributions once over the CSR data buffer, so each walker step
+  is a uniform draw + one binary search. 2. Distributes walkers across rayon worker threads,
+  dropping the GIL for the parallel section. 3. Folds the per-walker product of transition
+  probabilities into the step loop. The first pass returned only paths and hits and was only ~2.5x
+  faster end-to-end because the Python wrapper still did 4.5 million csr[i, j] lookups. Computing
+  the product in the step where the probability is already in hand moves the end-to-end gain to
+  ~400-500x at 2^14.
+
+Each walker owns an independent Pcg64 stream seeded by splitmix64(seed, walker_id) so runs are
+  bitwise reproducible across rayon thread counts.
+
+Numbers (5k walkers, ESS threshold 10, 16 rayon threads):
+
+sites n_states python (ms) rust (ms) speedup 6 64 2451 18 135x 10 1024 n/a 85 ~480x 14 16384 n/a 188
+  ~550x
+
+Pure-Python fallback retained as _simulate_chunk_python for sdist installs without a Rust toolchain.
+  paths.stochastic dispatches at import time via _RUST_AVAILABLE.
+
+Tested: 119 passed (no regression). New pytest-benchmark suite in tests/benchmarks/ records the
+  head-to-head; benchmarks/README.md documents why we Rust-accelerate this one loop and nothing
+  else.
+
+
 ## v1.0.0 (2026-05-17)
 
 ### Features

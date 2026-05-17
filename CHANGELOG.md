@@ -1,6 +1,125 @@
 # CHANGELOG
 
 
+## v1.2.0 (2026-05-17)
+
+### Chores
+
+- **examples**: Absorbing-chain streamlit page + cli demo
+  ([`c9b6b6f`](https://github.com/lperezmo/gpvolve-v2/commit/c9b6b6f6bfd7f1a3eb04c6a44396939b33af1cd2))
+
+- examples/02_absorbing_chain_toolkit.py: runnable end-to-end demo of the new toolkit on the L=5
+  SSWM bug case. Prints ergodicity flags, the standard-TPT failure mode, then the absorbing-chain
+  answers (absorption rate, conditional MFPT, fundamental matrix trace, QSD Perron eigenvalue with
+  metastable lifetime). About 79 steps from AAAAA to TTTTT, QSD peaks at TTTTA (the one-mutation
+  bottleneck). - examples/streamlit/app_pages/absorbing_analysis.py (new): showcase page exposing
+  ergodicity flags, absorbing-state list, absorption rate, conditional MFPT, QSD scatter, and
+  fundamental-matrix heatmap. Gracefully handles ergodic chains with an info message. -
+  examples/streamlit/app_pages/tpt_explorer.py: side-by-side display of reactive rate and absorption
+  rate; on absorbing chains, the reactive rate underflows to zero so the new MFPT-based rate is the
+  meaningful number. The warning text now explains the contrast instead of silently showing 0.0. -
+  examples/streamlit/showcase.py: wires the new page into the nav.
+
+- **streamlit**: Render math with LaTeX in showcase pages
+  ([`96cbb04`](https://github.com/lperezmo/gpvolve-v2/commit/96cbb043c5a7f20c13dd86d1451674c9c6681302))
+
+Switch prose-style expressions to KaTeX math in st.markdown so the landing copy on the TPT explorer,
+  MSM builder, sampler, and PCCA+ clustering pages renders as proper equations instead of
+  code-styled text.
+
+- **tests**: Cover validators, absorbing-chain toolkit, edge cases
+  ([`b9b3ab1`](https://github.com/lperezmo/gpvolve-v2/commit/b9b3ab1a0ed2639270838a760b6a84c2b57b7758))
+
+New test files: - tests/unit/test_validation.py covers is_ergodic (including a 3-cycle that
+  exercises "irreducible but periodic"), is_reversible on Moran (detailed balance holds) and SSWM
+  (rejected via support asymmetry), and absorbing_states with multi-peak landscapes. -
+  tests/unit/test_absorbing.py covers fundamental_matrix against a closed-form 2x2 inverse,
+  absorption_probabilities against the analytic 5/6 vs 1/6 split on the two-sink chain,
+  quasi_stationary_distribution with QSD lifetime cross-checked against MFPT-from-QSD,
+  conditional_mfpt agreeing with mfpt when B is the only sink, absorption_rate finiteness on the L=5
+  SSWM bug case, plus the four edge cases requested: multi-peak SSWM (reducible), singleton A and B
+  at landscape extremes, numerically tiny stationary entries (L=4 SSWM), and a fully disconnected
+  block-diagonal chain.
+
+Extensions to tests/unit/test_paths.py: backward_committor raises the new informative error on a
+  non-ergodic chain, forward_committor and rate still work on the same absorbing chain.
+
+Fixtures (tests/conftest.py): rugged_gpm_8 / rugged_graph_8 with two deliberate local maxima, and
+  fuji_5_sswm_msm reproducing the L=5 SSWM bug case end to end.
+
+170/170 tests pass.
+
+### Documentation
+
+- Align README and Zensical site with shipped Rust hot paths
+  ([`fbaa5b5`](https://github.com/lperezmo/gpvolve-v2/commit/fbaa5b5edec5fa4cb96e5015524e334a0ab59c13))
+
+- README and docs/index.md were claiming transition-matrix assembly was Rust-accelerated. It is not;
+  only the walker sampler and the BiCGSTAB committor solver are. Replaced with the actual scope plus
+  the measured speedup numbers, with a pointer to benchmarks/README.md. - README adds a Try it in
+  the browser section pointing at the Streamlit showcase the badge advertises. -
+  docs/installation.md: replaced the misleading single line about the [streamlit] extra with a
+  section explaining where the showcase lives and how to run it locally vs install just the runtime
+  deps. - docs/reference/changelog.md was a hand-written 1.0.0-only mirror of CHANGELOG.md. Replaced
+  with a thin pointer to the auto-generated CHANGELOG.md and the GitHub Releases page so it cannot
+  drift again.
+
+- Extend ergodicity guide with absorbing-chain toolkit
+  ([`a8d59ec`](https://github.com/lperezmo/gpvolve-v2/commit/a8d59ec4260af6392fbb9be8f0a2568d2f197c3d))
+
+Adds a top-level summary of the new validators (is_irreducible, is_ergodic, is_reversible) with the
+  aperiodicity criterion explained, and a substantial new section on absorbing chains covering:
+
+- the Kemeny-Snell block decomposition of P into Q, R, and I, - a function table mapping
+  fundamental_matrix, absorption_probabilities, quasi_stationary_distribution, conditional_mfpt, and
+  absorption_rate to their textbook references, - a worked example wiring the toolkit end to end on
+  an SSWM chain, - a contrast between the reactive rate (TPT, ergodic) and the absorption rate
+  (MFPT, absorbing) explaining when each applies and why the reactive rate reads zero on SSWM
+  chains.
+
+- Render equations with MathJax across concepts and guides
+  ([`44f09af`](https://github.com/lperezmo/gpvolve-v2/commit/44f09af4226901f66cd5014615cfc5297aa10725))
+
+Wire up MathJax via extra_javascript and rewrite the prose-style equations in the MSM primer,
+  transition path theory, PCCA+ clustering, ergodicity, and compute-pathways pages as proper inline
+  and display LaTeX. Indented code-block equations no longer render as monospace fragments.
+
+### Features
+
+- **markov,paths**: Comprehensive absorbing-chain toolkit
+  ([`7f78a5d`](https://github.com/lperezmo/gpvolve-v2/commit/7f78a5d557197c7ed9333c636d75a2c78472e7c9))
+
+Adds first-class support for absorbing Markov chains, which arise naturally under SSWM dynamics
+  (every local fitness maximum becomes a true sink). The standard TPT machinery requires an ergodic
+  chain with strictly positive stationary distribution and refuses to operate on absorbing chains;
+  this toolkit fills the gap with textbook constructs.
+
+Library additions - markov.validation: is_irreducible, is_ergodic, is_reversible, absorbing_states,
+  transient_states. is_ergodic checks irreducibility plus a positive diagonal (sufficient
+  aperiodicity criterion). is_reversible does a support-asymmetry test before the detailed-balance
+  equality, so it correctly rejects SSWM kernels even when the stationary distribution underflows to
+  numerically tiny but technically positive values. - markov.absorbing (new module):
+  fundamental_matrix N = (I - Q)^-1 (Kemeny and Snell 1976), absorption_probabilities B = N R for
+  basin assignment in multi-peak landscapes, quasi_stationary_distribution (Darroch and Seneta 1965)
+  returning the metastable Perron pair on the transient class, conditional_mfpt via Doob's
+  h-transform with reverse-reachability handling for closed transient components. - paths.tpt:
+  absorption_rate(P, A, B, *, initial=None) returning 1/E[tau_B] (Hanggi, Talkner, Borkovec 1990)
+  for the irreversible A to B rate constant. Routes through conditional_mfpt so it works on
+  multi-peak landscapes too.
+
+Bug fixes - backward_committor: error now names the cause (non-ergodic chain, absorbing states
+  common under SSWM on single-peak landscapes) and points the caller at forward_committor and rate
+  which remain well-defined. - mfpt: previously returned nan when the chain had absorbing states
+  outside the target set (singular (I - Q) m = 1 system). Now raises GpvolveError pointing at
+  conditional_mfpt. Behavior change: callers checking np.isnan(m) need to wrap in try/except
+  instead. - _coerce_set in paths.tpt: accepts numpy integer scalars in addition to Python int, so
+  absorbing_states()[k] flows directly into A or B.
+
+References - Kemeny and Snell 1976, Finite Markov Chains, Ch 3. - Darroch and Seneta 1965, J. Appl.
+  Prob. 2, 88 to 100. - Hanggi, Talkner, Borkovec 1990, Rev. Mod. Phys. 62, 251 to 341. - Norris
+  1997, Markov Chains, Ch 4 (h-transform).
+
+
 ## v1.1.0 (2026-05-17)
 
 ### Features

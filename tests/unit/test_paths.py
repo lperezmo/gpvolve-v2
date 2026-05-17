@@ -73,6 +73,47 @@ class TestBackwardCommittor:
         assert q_minus[0] == 1.0
         assert q_minus[3] == 0.0
 
+    def test_nonergodic_chain_raises_informative_error(
+        self, tiny_graph: GenotypePhenotypeGraph
+    ) -> None:
+        """SSWM on a single-peak landscape produces an absorbing chain.
+
+        The chain's unique stationary distribution puts mass 1 on the peak and 0
+        on every transient state, so the backward committor is undefined. We
+        require the error to name the cause (non-ergodic chain / absorbing
+        states) so the caller can act on it.
+        """
+        T = build_transition_matrix(tiny_graph, fitness_column="phenotypes", fixation="sswm")
+        # Tiny chains underflow to tiny-but-positive pi, so feed an explicit
+        # stationary with a true zero to exercise the guard deterministically.
+        pi = np.array([0.0, 0.0, 0.0, 1.0])
+        from gpvolve.exceptions import GpvolveError
+
+        with pytest.raises(GpvolveError) as excinfo:
+            backward_committor(T, A=0, B=3, stationary=pi)
+        msg = str(excinfo.value)
+        assert "ergodic" in msg or "absorbing" in msg
+        assert "forward committor" in msg.lower()
+
+    def test_forward_committor_works_on_absorbing_chain(
+        self, tiny_graph: GenotypePhenotypeGraph
+    ) -> None:
+        """Forward committor is well-defined for absorbing chains; only q- breaks."""
+        T = build_transition_matrix(tiny_graph, fitness_column="phenotypes", fixation="sswm")
+        q_plus = forward_committor(T, A=0, B=3)
+        assert q_plus[0] == 0.0
+        assert q_plus[3] == 1.0
+        # All transient states have nonzero probability of reaching the unique
+        # peak under SSWM, so q+ is 1 everywhere except A.
+        assert (q_plus[1:] > 0).all()
+
+    def test_rate_works_on_absorbing_chain(self, tiny_graph: GenotypePhenotypeGraph) -> None:
+        """k_AB is well-defined for absorbing chains and must be finite."""
+        T = build_transition_matrix(tiny_graph, fitness_column="phenotypes", fixation="sswm")
+        k = rate(T, A=0, B=3)
+        assert np.isfinite(k)
+        assert k >= 0.0
+
 
 class TestReactiveFlux:
     def test_nonneg(self, tiny_graph: GenotypePhenotypeGraph) -> None:

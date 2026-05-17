@@ -18,12 +18,12 @@ from utils import build_msm
 st.title("Stochastic walker sampler")
 
 st.markdown(
-    """
-Run a rayon-parallel Monte Carlo walker ensemble from `A` to `B`. The
+    r"""
+Run a rayon-parallel Monte Carlo walker ensemble from $A$ to $B$. The
 sampler stops on **both** of the following per-endpoint criteria:
 
-1. **ESS via Sokal autocorrelation**: `N / (2 * tau_int) >= ess_min`.
-2. **Gelman-Rubin R-hat across chains**: `R-hat <= rhat_max`.
+1. **ESS via Sokal autocorrelation**: $N / (2\, \tau_{\text{int}}) \geq \text{ess\_min}$.
+2. **Gelman-Rubin R-hat across chains**: $\hat{R} \leq \text{rhat\_max}$.
 
 The Rust backend is currently
 **{rust_status}**; speedup vs the pure-Python fallback is typically

@@ -21,11 +21,17 @@ from utils import build_msm
 st.title("Transition Path Theory")
 
 st.markdown(
-    """
-Pick a source genotype `A` and a target genotype `B`. We solve the
-absorbing-boundary system for the forward committor `q+`, build the
-reactive flux `f_ij = pi_i q-_i P_ij q+_j`, compute the A-to-B rate,
-and decompose the flux into bottleneck pathways.
+    r"""
+Pick a source genotype $A$ and a target genotype $B$. We solve the
+absorbing-boundary system for the forward committor $q^{+}$, build the
+reactive flux
+
+$$
+f_{ij} \;=\; \pi_i \, q^{-}_{i} \, P_{ij} \, q^{+}_{j}
+$$
+
+compute the $A$-to-$B$ rate, and decompose the flux into bottleneck
+pathways.
 
 The committor solve dispatches to the Rust BiCGSTAB kernel when
 `n_free > 256`; for the small landscapes in this UI it stays in
@@ -77,7 +83,7 @@ dense_flux = flux.toarray()
 im = axes[1].imshow(dense_flux, cmap="magma", aspect="auto")
 axes[1].set_xlabel("j")
 axes[1].set_ylabel("i")
-axes[1].set_title("reactive flux f_ij")
+axes[1].set_title(r"reactive flux $f_{ij}$")
 fig.colorbar(im, ax=axes[1], label="flux")
 st.pyplot(fig)
 

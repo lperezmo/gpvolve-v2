@@ -15,17 +15,19 @@ from utils import build_msm
 st.title("PCCA+ metastable clustering")
 
 st.markdown(
-    """
-PCCA+ (Roeblitz and Weber 2013) decomposes the chain into `k` metastable
-basins from the top-`k` right eigenvectors of `P`. gpvolve-v2 implements
-the inner-simplex initialization + projected refinement from scratch -
+    r"""
+PCCA+ (Roeblitz and Weber 2013) decomposes the chain into $k$ metastable
+basins from the top-$k$ right eigenvectors of $P$. gpvolve-v2 implements
+the inner-simplex initialization + projected refinement from scratch,
 no ``msmtools`` dependency.
 
 Pick a landscape size and the number of clusters. We show:
 
-- the row-stochastic membership matrix `chi`
+- the row-stochastic membership matrix $\chi$
 - the hard-argmax assignment laid out by `n_mutations`
-- the Galerkin-coarse-grained transition matrix on the basins
+- the Galerkin-coarse-grained transition matrix on the basins,
+  $P_{\text{coarse}} = (\chi^{\top} D \chi)^{-1} \chi^{\top} D P \chi$
+  with $D = \operatorname{diag}(\pi)$
 """
 )
 

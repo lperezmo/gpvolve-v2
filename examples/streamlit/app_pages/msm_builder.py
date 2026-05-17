@@ -16,10 +16,10 @@ from utils import build_msm
 st.title("MSM builder")
 
 st.markdown(
-    """
+    r"""
 Pick a landscape size, a fixation model, and (for Moran/McCandlish) a
-population size. The output is the row-stochastic transition matrix `P`
-and its stationary distribution `pi`. The matrix is exactly the object
+population size. The output is the row-stochastic transition matrix $P$
+and its stationary distribution $\pi$. The matrix is exactly the object
 the rest of the pages consume.
 """
 )

@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v1.0.2 (2026-05-17)
+
+### Bug Fixes
+
+- **lint**: Import order and format on perf commit follow-up
+  ([`0c05ed2`](https://github.com/lperezmo/gpvolve-v2/commit/0c05ed21d42624e7c313c35cd9aba836117b482c))
+
+Ruff I001 and ruff format catches from CI that were missed locally.
+
+
 ## v1.0.1 (2026-05-17)
 
 ### Performance Improvements

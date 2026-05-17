@@ -547,7 +547,7 @@ wheels = [
 
 [[package]]
 name = "gpvolve-v2"
-version = "1.0.0"
+version = "1.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "gpgraph-v2" },

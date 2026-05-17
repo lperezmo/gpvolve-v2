@@ -48,6 +48,7 @@ Homepage = "https://github.com/lperezmo/gpvolve-v2"
 Repository = "https://github.com/lperezmo/gpvolve-v2"
 Issues = "https://github.com/lperezmo/gpvolve-v2/issues"
 
+
 [dependency-groups]
 dev = [
     "pytest >=8",

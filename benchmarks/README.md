@@ -10,6 +10,20 @@ uv run pytest tests/benchmarks/ --benchmark-only
 The Rust-internal benchmarks (criterion) live in `benches/` at the repo
 root and are run with `cargo bench`.
 
+## Hot paths in Rust
+
+The two kernels in `crates/gpvolve-core/src/` are:
+
+1. **`sample_paths_csr`** -- rayon-parallel walkers with per-walker PCG64
+   streams. Folds the per-step transition-probability product into the
+   walker so the Python wrapper does not need 4.5 million `csr[i, j]`
+   lookups at the end. See "Stochastic sampler" below.
+2. **`solve_bicgstab_csr`** -- van der Vorst (1992) stabilized BiCG for
+   the absorbing-boundary committor system. scipy's `spsolve` runs a
+   supernodal LU that fills in superlinearly on these matrices; BiCGSTAB
+   iterates in O(nnz) and converges in tens of steps. See "Committor
+   solver" below.
+
 ## Why Rust here and not elsewhere
 
 We profiled `build_transition_matrix`, `stationary_distribution`,
@@ -59,6 +73,32 @@ difference and where Rust earned its place.
   system. The pyo3 plan flagged a Rust BiCGSTAB for the "large MSM"
   case; in practice spsolve handles 2^14 directly and the BiCGSTAB
   path is deferred until a real customer hits the limit.
+
+## Committor solver
+
+`forward_committor(P, A, B)` solves `(I - P_ff) q_free = P_fB . 1` over the
+free states. Times below are wall-clock for a single committor call on
+binary maps; reproduce with
+
+```bash
+uv run pytest tests/benchmarks/test_committor_bench.py --benchmark-only
+```
+
+| sites | n_states | spsolve (ms) | Rust BiCGSTAB (ms) | speedup |
+|------:|---------:|-------------:|-------------------:|--------:|
+| 10    | 1,024    | 42           | 1.4                | 30x     |
+| 12    | 4,096    | 2,964        | 6.9                | 430x    |
+| 13    | 8,192    | 26,219       | 14.6               | 1,800x  |
+| 14    | 16,384   | timed out*   | 35                 | >1,700x |
+| 15    | 32,768   | timed out*   | 77                 | n/a     |
+
+*spsolve exceeded the 60 s wall in our profiling at n=16k and was killed.
+The LU fill-in scales roughly as O(n^2.5) on these matrices; BiCGSTAB is
+O(nnz * iterations) with iterations roughly constant in n (~50 for
+well-conditioned non-reversible MSM systems).
+
+Threshold: gpvolve-v2 switches to BiCGSTAB at `n_free > 256`. Below that,
+spsolve's microsecond setup beats the FFI overhead.
 
 ## Profiling notes
 

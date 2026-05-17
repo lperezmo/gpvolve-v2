@@ -42,3 +42,20 @@ def sample_paths_csr(
     regardless of the rayon thread count.
     """
     ...
+
+def solve_bicgstab_csr(
+    indptr: NDArray[np.int64],
+    indices: NDArray[np.int64],
+    data: NDArray[np.float64],
+    b: NDArray[np.float64],
+    max_iter: int = 1000,
+    tol: float = 1e-10,
+) -> tuple[NDArray[np.float64], int, bool]:
+    """Solve `A x = b` for a CSR-encoded sparse `A` with stabilized BiCG.
+
+    Returns `(x, iterations, converged)`. Convergence is declared when the
+    relative residual `||A x - b|| / ||b||` is at or below `tol`. The system
+    is solved with zero initial guess; the caller may right-precondition if
+    convergence stalls on stiff systems.
+    """
+    ...

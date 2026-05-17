@@ -28,8 +28,25 @@ import scipy.sparse as sp
 import scipy.sparse.linalg as spla
 from numpy.typing import NDArray
 
-from gpvolve.exceptions import GpvolveError
+from gpvolve.exceptions import ConvergenceError, GpvolveError
 from gpvolve.markov.stationary import stationary_distribution
+
+try:
+    from gpvolve._rust import solve_bicgstab_csr as _rust_solve_bicgstab
+
+    _RUST_BICGSTAB_AVAILABLE = True
+except ImportError:  # pragma: no cover - exercised only without the extension
+    _rust_solve_bicgstab = None  # type: ignore[assignment]
+    _RUST_BICGSTAB_AVAILABLE = False
+
+# scipy.sparse.linalg.spsolve uses a supernodal LU. Empirically (binary maps,
+# Moran, pop_size=100) it scales as roughly O(n^2.5) once fill-in dominates:
+# n=4096 -> 3 s, n=8192 -> 26 s, n=16384 timed out at 60 s. BiCGSTAB iterates
+# in O(nnz) per step and converges in ~50 steps for these systems, so it wins
+# everywhere except on toy test fixtures where FFI overhead dominates.
+_BICGSTAB_SIZE_THRESHOLD = 256
+_BICGSTAB_MAX_ITER = 2_000
+_BICGSTAB_TOL = 1e-10
 
 
 def _coerce_set(x: int | Iterable[int], *, n: int, name: str) -> NDArray[np.int64]:
@@ -73,7 +90,30 @@ def forward_committor(
     rhs = np.asarray(P_fB.sum(axis=1)).ravel()
     A_lhs = sp.eye(n_free, format="csr") - P_ff
 
-    q_free = spla.spsolve(A_lhs, rhs) if n_free > 0 else np.zeros(0, dtype=np.float64)
+    if n_free == 0:
+        q_free = np.zeros(0, dtype=np.float64)
+    elif _RUST_BICGSTAB_AVAILABLE and n_free > _BICGSTAB_SIZE_THRESHOLD:
+        A_csr = A_lhs.tocsr()
+        x, _iters, converged = _rust_solve_bicgstab(
+            np.ascontiguousarray(A_csr.indptr, dtype=np.int64),
+            np.ascontiguousarray(A_csr.indices, dtype=np.int64),
+            np.ascontiguousarray(A_csr.data, dtype=np.float64),
+            np.ascontiguousarray(rhs, dtype=np.float64),
+            _BICGSTAB_MAX_ITER,
+            _BICGSTAB_TOL,
+        )
+        if not converged:
+            # Iterative solver failed to hit tolerance; fall back to direct LU.
+            # spsolve at this size is slow but reliable.
+            q_free = spla.spsolve(A_lhs, rhs)
+            if q_free is None or np.any(~np.isfinite(q_free)):
+                raise ConvergenceError(
+                    "forward committor BiCGSTAB and LU both failed to produce a finite solution"
+                )
+        else:
+            q_free = np.asarray(x, dtype=np.float64)
+    else:
+        q_free = spla.spsolve(A_lhs, rhs)
 
     q = np.zeros(n, dtype=np.float64)
     q[B_arr] = 1.0

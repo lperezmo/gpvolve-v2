@@ -15,6 +15,11 @@ pages = [
     st.Page("app_pages/msm_builder.py", title="MSM builder", icon=":material/hub:"),
     st.Page("app_pages/tpt_explorer.py", title="TPT explorer", icon=":material/route:"),
     st.Page(
+        "app_pages/absorbing_analysis.py",
+        title="Absorbing chains",
+        icon=":material/track_changes:",
+    ),
+    st.Page(
         "app_pages/sampler.py",
         title="Stochastic sampler",
         icon=":material/casino:",

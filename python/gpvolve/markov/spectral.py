@@ -77,13 +77,45 @@ def mfpt(matrix: sp.spmatrix, targets: int | Iterable[int]) -> NDArray[np.float6
     Solves ``(I - Q) m = 1`` where ``Q`` is ``matrix`` with rows in ``targets``
     set to zero. Returns a length-``n`` array; entries indexed by ``targets``
     are ``0`` by definition.
+
+    Raises
+    ------
+    GpvolveError
+        If the chain has absorbing states **outside** ``targets``. In that
+        case, every state that lies in the basin of one of those competing
+        absorbing classes has positive probability of absorbing there before
+        ever reaching ``targets``, so the expectation diverges (Norris 1997,
+        Section 1.3). The standard ``(I - Q) m = 1`` solve is singular in
+        this regime. Use :func:`gpvolve.conditional_mfpt` to compute
+        ``E[tau_B | absorbed in B]`` instead, or include the other absorbing
+        states in ``targets`` to compute the unconditional hitting time of
+        the union.
     """
+    from gpvolve.exceptions import GpvolveError
+    from gpvolve.markov.validation import absorbing_states as _abs_states
+
     n = matrix.shape[0]
     target_set = {int(targets)} if isinstance(targets, int) else {int(t) for t in targets}
     if not target_set:
         raise ValueError("targets must be non-empty")
     if any(t < 0 or t >= n for t in target_set):
         raise ValueError(f"target index out of range for matrix of size {n}")
+
+    # Detect competing absorbing states: sinks that are not in `targets` cause
+    # the standard linear system to be singular (their rows in I - Q become
+    # zero rows) and signal divergent MFPT for any state in their basin.
+    competing = [int(i) for i in _abs_states(matrix) if int(i) not in target_set]
+    if competing:
+        raise GpvolveError(
+            f"mfpt is undefined: the chain has {len(competing)} absorbing "
+            f"state(s) outside the target set ({competing[:5]}"
+            f"{'...' if len(competing) > 5 else ''}). Trajectories that absorb "
+            "in a competing sink never reach the target, so E[tau_target] "
+            "diverges. Use gpvolve.conditional_mfpt(P, A, B) for the "
+            "expectation conditioned on absorbing in B, or include all sinks "
+            "in `targets` to compute the unconditional hitting time of the "
+            "absorbing class as a whole."
+        )
 
     mask = np.zeros(n, dtype=bool)
     for t in target_set:

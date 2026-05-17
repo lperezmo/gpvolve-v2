@@ -5,6 +5,7 @@ from gpvolve.paths.greedy import greedy_walk
 from gpvolve.paths.shortest import shortest_paths
 from gpvolve.paths.stochastic import ConvergenceCheck, sample_paths
 from gpvolve.paths.tpt import (
+    absorption_rate,
     backward_committor,
     forward_committor,
     net_flux,
@@ -14,6 +15,7 @@ from gpvolve.paths.tpt import (
 
 __all__ = [
     "ConvergenceCheck",
+    "absorption_rate",
     "backward_committor",
     "dominant_pathways",
     "forward_committor",

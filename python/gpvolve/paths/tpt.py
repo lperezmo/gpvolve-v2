@@ -50,7 +50,7 @@ _BICGSTAB_TOL = 1e-10
 
 
 def _coerce_set(x: int | Iterable[int], *, n: int, name: str) -> NDArray[np.int64]:
-    if isinstance(x, int):
+    if isinstance(x, (int, np.integer)):
         arr = np.asarray([int(x)], dtype=np.int64)
     else:
         arr = np.asarray(sorted({int(v) for v in x}), dtype=np.int64)
@@ -137,7 +137,16 @@ def backward_committor(
     n = matrix.shape[0]
     pi = stationary_distribution(matrix) if stationary is None else stationary
     if (pi <= 0).any():
-        raise GpvolveError("backward committor requires strictly positive stationary distribution")
+        n_zero = int((pi <= 0).sum())
+        raise GpvolveError(
+            "backward committor is undefined: the stationary distribution has "
+            f"{n_zero} non-positive entries out of {n}, so the chain is not ergodic. "
+            "This commonly occurs when the fixation model produces absorbing states "
+            "(e.g. SSWM on a single-peak landscape, where every fitness peak becomes "
+            "a true sink with T_ii=1). Standard transition path theory requires an "
+            "ergodic chain with strictly positive stationary distribution. Forward "
+            "committor and rate are still well-defined for absorbing chains."
+        )
     # Build the reverse chain by swapping (i, j) -> (j, i) in the COO triples.
     # This is equivalent to diag(1/pi) @ P^T @ diag(pi) and yields the
     # time-reversed transition matrix. Solving the forward committor of the
@@ -204,3 +213,104 @@ def rate(
     contrib = sub.multiply(q_plus[not_A][np.newaxis, :])
     row_pi = pi[A_arr][:, np.newaxis]
     return float(np.asarray(contrib.multiply(row_pi).sum()).item())
+
+
+def absorption_rate(
+    matrix: sp.spmatrix,
+    A: int | Iterable[int],
+    B: int | Iterable[int],
+    *,
+    initial: NDArray[np.float64] | None = None,
+) -> float:
+    """MFPT-based rate ``k = 1 / E[tau_B | X_0 ~ initial]`` for absorbing chains.
+
+    The standard reactive rate :func:`rate` is the long-time average flux from
+    A to B in an ergodic chain. When the chain is absorbing (and the
+    stationary distribution puts zero mass on A), that flux collapses to zero
+    and the reactive rate becomes uninformative. The natural rate constant in
+    that regime is the reciprocal of the expected absorption time
+    (Hanggi-Talkner-Borkovec 1990; this is the chemical-kinetics rate
+    constant for an irreversible A -> B process).
+
+    Parameters
+    ----------
+    matrix:
+        Row-stochastic transition matrix.
+    A:
+        Source state(s). Used as the support of the initial distribution
+        when ``initial`` is None.
+    B:
+        Target absorbing set. Treated as absorbing for the MFPT computation
+        (B states are zeroed out internally so the standard
+        ``(I - Q) m = 1`` solve applies, regardless of whether the input
+        matrix already had B absorbing).
+    initial:
+        Optional length-``n`` initial distribution. Must be non-negative and
+        sum to 1 over its support. If None, a uniform distribution over
+        ``A`` is used.
+
+    Returns
+    -------
+    Rate constant ``k = 1 / E[tau_B]`` in inverse time-steps. ``+inf`` if
+    every state in the support of the initial distribution is already in B
+    (zero absorption time); ``0.0`` if ``B`` is unreachable from at least
+    one state in the support.
+
+    Notes
+    -----
+    The function uses :func:`gpvolve.mfpt`, which solves
+    ``(I - Q) m = 1`` with ``Q = P[:, :]`` and target rows zeroed. The
+    expected absorption time from ``initial`` is then
+    ``E[tau_B] = sum_i initial_i m_i``. For chains with multiple competing
+    absorbing classes, use :func:`gpvolve.conditional_mfpt` to condition the
+    expectation on the event ``{absorbed in B}``.
+
+    Comparison to :func:`rate`: the two agree when the chain is ergodic and
+    the initial distribution is the stationary distribution restricted to A
+    and renormalized, in the limit of slow A -> B transitions
+    (Berezhkovskii-Hummer-Szabo 2009 reduces to Eyring/Kramers in that
+    regime).
+
+    References
+    ----------
+    Hanggi, P., Talkner, P., Borkovec, M. (1990). "Reaction-rate theory:
+    fifty years after Kramers." *Reviews of Modern Physics* 62, 251-341.
+    """
+    from gpvolve.markov.absorbing import conditional_mfpt as _conditional_mfpt
+
+    n = matrix.shape[0]
+    A_arr = _coerce_set(A, n=n, name="A")
+    B_arr = _coerce_set(B, n=n, name="B")
+    if np.intersect1d(A_arr, B_arr).size > 0:
+        raise GpvolveError("A and B must be disjoint")
+
+    if initial is None:
+        weights_A = np.full(A_arr.size, 1.0 / A_arr.size, dtype=np.float64)
+        support_idx = A_arr
+    else:
+        full = np.asarray(initial, dtype=np.float64).copy()
+        if full.shape != (n,):
+            raise GpvolveError(f"initial must have shape ({n},); got {full.shape}")
+        if (full < 0).any():
+            raise GpvolveError("initial distribution must be non-negative")
+        total = float(full.sum())
+        if total <= 0:
+            raise GpvolveError("initial distribution must have positive total mass")
+        full = full / total
+        support_mask = full > 0
+        if not support_mask.any():
+            raise GpvolveError("initial distribution has no support")
+        support_idx = np.flatnonzero(support_mask).astype(np.int64)
+        weights_A = full[support_idx]
+
+    # Use conditional_mfpt so the rate is well-defined when other absorbing
+    # classes compete with B (multi-peak landscapes); for chains where B is
+    # the only sink, this reduces to ordinary mfpt(P, B).
+    m_cond = _conditional_mfpt(matrix, A=support_idx.tolist(), B=B_arr.tolist())
+    if np.any(np.isinf(m_cond)):
+        # At least one supported state has zero probability of absorbing in B.
+        return 0.0
+    expected_tau = float(np.dot(weights_A, m_cond))
+    if expected_tau <= 0:
+        return float("inf")
+    return 1.0 / expected_tau

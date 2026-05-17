@@ -13,22 +13,19 @@ from __future__ import annotations
 
 from itertools import product
 
+import gpvolve.paths.stochastic as stochastic
 import numpy as np
 import pytest
 from gpgraph import GenotypePhenotypeGraph
 from gpmap import GenotypePhenotypeMap
-
 from gpvolve import ConvergenceCheck, GenotypePhenotypeMSM, sample_paths
-import gpvolve.paths.stochastic as stochastic
 
 
 def _build_msm(sites: int) -> GenotypePhenotypeMSM:
     rng = np.random.default_rng(0)
     eff = rng.normal(0.0, 0.4, size=sites)
     gts = ["".join(b) for b in product("01", repeat=sites)]
-    phens = [
-        float(np.exp(sum(eff[i] for i, c in enumerate(g) if c == "1"))) for g in gts
-    ]
+    phens = [float(np.exp(sum(eff[i] for i, c in enumerate(g) if c == "1"))) for g in gts]
     gpm = GenotypePhenotypeMap(wildtype="0" * sites, genotypes=gts, phenotypes=phens)
     graph = GenotypePhenotypeGraph.from_gpm(gpm)
     return GenotypePhenotypeMSM.from_graph(

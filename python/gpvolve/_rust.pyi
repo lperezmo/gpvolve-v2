@@ -13,7 +13,6 @@ from numpy.typing import NDArray
 
 __version__: str
 
-
 def sample_paths_csr(
     indptr: NDArray[np.int64],
     indices: NDArray[np.int64],

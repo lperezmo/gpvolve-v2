@@ -1,6 +1,53 @@
 # CHANGELOG
 
 
+## v1.1.0 (2026-05-17)
+
+### Features
+
+- **streamlit**: Multi-page showcase app
+  ([`7632b53`](https://github.com/lperezmo/gpvolve-v2/commit/7632b539d777c773064536d5a5f9cdd426f4834a))
+
+7-page tour mirroring the gpgraph-v2 / gpmap-v2 style:
+
+intro quickstart + page map msm_builder pick L + fixation + pop_size; show P and pi tpt_explorer
+  committor, reactive flux, dominant pathways A->B sampler rayon walker ensemble with live ESS /
+  R-hat readout clustering PCCA+ memberships + coarse-grained P + basin overlay benchmarks live
+  Rust-vs-Python timings for both hot kernels about links to sibling v2 packages and what is in Rust
+
+Deployable to Streamlit Cloud at gpvolve-v2.streamlit.app via the pinned requirements.txt; the Rust
+  crate builds from sdist on Cloud without extra setup. Local dev is uv sync + maturin develop + the
+  showcase entrypoint.
+
+README adds the Streamlit Cloud badge pointing to that URL.
+
+### Performance Improvements
+
+- **tpt**: Rust BiCGSTAB for the committor system on large maps
+  ([`ab8b765`](https://github.com/lperezmo/gpvolve-v2/commit/ab8b76517a6778cbc9189c4ed2ad9065f9bdafde))
+
+scipy.sparse.linalg.spsolve uses a supernodal LU. On the (I - P_ff) systems the committor reduces
+  to, the LU fill-in scales roughly as O(n^2.5):
+
+n=4,096 spsolve = 2,964 ms n=8,192 spsolve = 26,219 ms n=16,384 spsolve timed out at 60 s
+
+BiCGSTAB iterates in O(nnz) and converges in ~50 steps for these near-row-stochastic systems. With
+  the same configurations:
+
+n=4,096 BiCGSTAB = 6.9 ms (430x) n=8,192 BiCGSTAB = 14.6 ms (1,800x) n=16,384 BiCGSTAB = 35 ms
+  (>1,700x) n=32,768 BiCGSTAB = 77 ms
+
+forward_committor now dispatches to gpvolve._rust.solve_bicgstab_csr when n_free > 256 and the
+  extension is available; falls back to spsolve below that threshold (where FFI overhead would
+  dominate) or when BiCGSTAB fails to hit tolerance.
+
+Implementation is the textbook van der Vorst 1992 BiCGSTAB with breakdown detection. No assumption
+  that A is symmetric or reversible. Zero initial guess; tol=1e-10 relative residual; max_iter=2000.
+
+Verified with tests/unit/test_committor_parity.py: Rust output matches spsolve to within 5e-9 on a
+  2^8 binary map. Benchmark suite in tests/benchmarks/test_committor_bench.py.
+
+
 ## v1.0.2 (2026-05-17)
 
 ### Bug Fixes

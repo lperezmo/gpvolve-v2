@@ -18,14 +18,27 @@ dominant pathways, stochastic walker trajectories, PCCA+ metastable sets, and fi
 
 This is a clean-break rewrite of [harmslab/gpvolve](https://github.com/harmslab/gpvolve)
 (dormant since 2020) with selective architectural inspiration from the
-[harmsm/gpvolve](https://github.com/harmsm/gpvolve) fork (dormant since 2022). Hot paths
-(transition matrix assembly and stochastic walker sampling) live in Rust via PyO3 + rayon;
-spectral analysis stays in scipy.
+[harmsm/gpvolve](https://github.com/harmsm/gpvolve) fork (dormant since 2022). The two
+hot paths that actually scaled badly in pure Python live in Rust via PyO3 + rayon: the
+stochastic walker sampler (~500x faster at 2^14 states) and the BiCGSTAB committor
+solver (~1700x faster at 2^14 vs `scipy.sparse.linalg.spsolve`). Everything else
+(transition matrix assembly, stationary distributions, TPT setup, PCCA+) stays in
+vectorized numpy/scipy where it already runs under a second on 2^14 maps. See
+[`benchmarks/README.md`](benchmarks/README.md) for the measured numbers and the rationale
+for what is and is not in Rust.
+
+## Try it in the browser
+
+The [Streamlit showcase](https://gpvolve-v2.streamlit.app) tours every public surface
+interactively: MSM builder, TPT explorer, stochastic sampler with live ESS / R-hat,
+PCCA+ clustering, and a live Rust-vs-Python benchmark tab. Source under
+[`examples/streamlit/`](examples/streamlit/).
 
 ## Why v2
 
 - **Drops the dormant `msmtools` dependency.** PCCA+ and TPT are reimplemented natively.
-- **Fast.** Transition matrix assembly and walker sampling run in Rust with rayon parallelism.
+- **Fast where it matters.** Walker sampling and the committor solver run in Rust with
+  rayon parallelism; the rest stays in vectorized numpy/scipy.
 - **Sound convergence.** Stochastic path sampling stops on a real criterion (effective sample
   size + Gelman-Rubin R-hat), not a Euclidean distance heuristic.
 - **Typed.** Full type hints, `mypy --strict` in CI.

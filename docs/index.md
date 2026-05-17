@@ -13,8 +13,11 @@ Bloom DMS, weak-mutation) and analyzes the resulting Markov state model:
 - fitness peak and valley detection
 - Wright-Fisher and Gillespie simulation backends
 
-Hot paths (transition matrix assembly and stochastic walker loops) are Rust-accelerated;
-spectral analysis stays in scipy.
+Two hot loops live in Rust via PyO3 + rayon: the stochastic walker sampler (~500x
+faster at 2^14 states) and the BiCGSTAB committor solver (~1700x faster at 2^14 vs
+`scipy.sparse.linalg.spsolve`). Transition-matrix assembly, stationary distributions,
+TPT setup and PCCA+ stay in vectorized numpy/scipy where they already run under a
+second on 2^14 maps.
 
 ## Where to start
 

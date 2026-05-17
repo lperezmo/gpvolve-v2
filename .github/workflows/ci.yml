@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: { python-version: '3.13' }
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - run: uv run ruff check python/gpvolve tests
+      - run: uv run ruff format --check python/gpvolve tests
+      - name: Build Rust extension (for mypy to find _rust.pyi bindings)
+        run: |
+          uv sync --frozen
+          uv run maturin develop --release
+      - run: uv run mypy python/gpvolve
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.11', '3.12', '3.13']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: { python-version: '${{ matrix.python-version }}' }
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - name: Build Rust extension
+        run: uv run maturin develop --release
+      - name: Run tests
+        run: uv run pytest --cov=gpvolve --cov-report=xml --cov-fail-under=80
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.13'
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false

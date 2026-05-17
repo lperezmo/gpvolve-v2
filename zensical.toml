@@ -1,0 +1,82 @@
+[project]
+site_name = "gpvolve-v2"
+site_description = "Markov-chain evolutionary dynamics on genotype-phenotype maps. Rust-accelerated."
+site_url = "https://lperezmo.github.io/gpvolve-v2/"
+repo_url = "https://github.com/lperezmo/gpvolve-v2"
+repo_name = "lperezmo/gpvolve-v2"
+edit_uri = "edit/main/docs/"
+extra_css = ["stylesheets/extra.css"]
+nav = [
+    { "Home" = "index.md" },
+    { "Quickstart" = "quickstart.md" },
+    { "Installation" = "installation.md" },
+    { "Concepts" = [
+        { "Markov chains on fitness landscapes" = "concepts/msm-primer.md" },
+        { "Fixation models" = "concepts/fixation-models.md" },
+        { "Transition path theory" = "concepts/transition-path-theory.md" },
+        { "PCCA+ and metastable clustering" = "concepts/pcca-clustering.md" },
+        { "Ergodicity and reversibility" = "concepts/ergodicity.md" },
+    ] },
+    { "Guides" = [
+        { "Build an MSM from a GP map" = "guides/build-msm.md" },
+        { "Compute evolutionary pathways" = "guides/compute-pathways.md" },
+        { "Stochastic path sampling" = "guides/stochastic-sampling.md" },
+        { "Coarse-graining with PCCA+" = "guides/coarse-graining.md" },
+        { "Wright-Fisher simulation" = "guides/wright-fisher.md" },
+        { "Optional: SLiM integration" = "guides/slim-integration.md" },
+        { "Plotting" = "guides/plotting.md" },
+    ] },
+    { "Migration" = [
+        { "From gpvolve v1" = "migration/from-v1.md" },
+    ] },
+    { "Reference" = [
+        { "Markov" = "reference/markov.md" },
+        { "Fixation models" = "reference/fixation.md" },
+        { "Paths and TPT" = "reference/paths.md" },
+        { "Simulate" = "reference/simulate.md" },
+        { "Cluster" = "reference/cluster.md" },
+        { "Analysis" = "reference/analysis.md" },
+        { "I/O" = "reference/io.md" },
+        { "pyplot" = "reference/pyplot.md" },
+        { "Exceptions" = "reference/exceptions.md" },
+        { "Changelog" = "reference/changelog.md" },
+    ] },
+]
+
+[project.theme]
+variant = "modern"
+features = [
+    "navigation.tabs",
+    "navigation.tabs.sticky",
+    "navigation.sections",
+    "navigation.top",
+    "navigation.footer",
+    "navigation.indexes",
+    "navigation.tracking",
+    "content.action.edit",
+    "content.action.view",
+    "content.code.copy",
+    "search.highlight",
+    "search.suggest",
+    "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "custom"
+accent = "custom"
+
+[project.theme.palette.toggle]
+icon = "material/brightness-7"
+name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "custom"
+accent = "custom"
+
+[project.theme.palette.toggle]
+icon = "material/brightness-4"
+name = "Switch to light mode"

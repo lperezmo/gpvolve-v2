@@ -1,0 +1,141 @@
+[project]
+name = "gpvolve-v2"
+version = "1.0.0"
+description = "Markov-chain evolutionary dynamics on genotype-phenotype maps. Rust-accelerated."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Luis Perez", email = "lperezmo@users.noreply.github.com" }]
+keywords = [
+    "genotype",
+    "phenotype",
+    "fitness-landscape",
+    "markov",
+    "evolution",
+    "transition-path-theory",
+    "fixation",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "numpy >=2.0",
+    "scipy >=1.13",
+    "networkx >=3.6",
+    "gpmap-v2 >=1.0",
+    "gpgraph-v2 >=1.0",
+    "tqdm >=4.67",
+    "typing-extensions >=4.12",
+]
+
+[project.optional-dependencies]
+plot = ["matplotlib >=3.10"]
+streamlit = ["streamlit >=1.56", "matplotlib >=3.10"]
+sim = ["pyslim >=1.0", "tskit >=0.5"]
+parquet = ["pyarrow >=14"]
+
+[project.urls]
+Homepage = "https://github.com/lperezmo/gpvolve-v2"
+Repository = "https://github.com/lperezmo/gpvolve-v2"
+Issues = "https://github.com/lperezmo/gpvolve-v2/issues"
+
+[dependency-groups]
+dev = [
+    "pytest >=8",
+    "pytest-benchmark >=4",
+    "pytest-cov >=5",
+    "hypothesis >=6.100",
+    "ruff >=0.6",
+    "mypy >=1.10",
+    "maturin >=1.13",
+    "matplotlib >=3.10",
+]
+
+[build-system]
+requires = ["maturin >=1.13,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+module-name = "gpvolve._rust"
+python-source = "python"
+manifest-path = "crates/gpvolve-core/Cargo.toml"
+features = ["pyo3/extension-module"]
+
+[tool.semantic_release]
+version_toml = [
+    "pyproject.toml:project.version",
+    "Cargo.toml:workspace.package.version",
+]
+version_variables = ["python/gpvolve/_version.py:__version__"]
+tag_format = "v{version}"
+commit_message = "chore(release): v{version}"
+build_command = ""
+allow_zero_version = false
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false
+
+[tool.semantic_release.commit_parser_options]
+allowed_tags = [
+    "feat",
+    "fix",
+    "perf",
+    "refactor",
+    "style",
+    "docs",
+    "test",
+    "build",
+    "ci",
+    "chore",
+    "revert",
+]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+ignore = ["E501", "N803", "N806", "E741"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["B905"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["python/gpvolve"]
+
+[[tool.mypy.overrides]]
+module = [
+    "networkx.*",
+    "matplotlib.*",
+    "scipy.*",
+    "pandas.*",
+    "tqdm.*",
+    "gpmap.*",
+    "gpgraph.*",
+    "pyslim.*",
+    "tskit.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:pytest_benchmark.*",
+]

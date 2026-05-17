@@ -1,7 +1,7 @@
 # Fixation models
 
-A fixation model maps a pair of fitnesses `(f_i, f_j)` to a probability that
-a new allele `j` arising on background `i` fixes in the population.
+A fixation model maps a pair of fitnesses $(f_i, f_j)$ to a probability that
+a new allele $j$ arising on background $i$ fixes in the population.
 gpvolve-v2 ships five built-ins.
 
 ## Built-ins

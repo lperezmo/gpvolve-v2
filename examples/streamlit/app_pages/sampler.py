@@ -22,8 +22,8 @@ st.markdown(
 Run a rayon-parallel Monte Carlo walker ensemble from $A$ to $B$. The
 sampler stops on **both** of the following per-endpoint criteria:
 
-1. **ESS via Sokal autocorrelation**: $N / (2\, \tau_{\text{int}}) \geq \text{ess\_min}$.
-2. **Gelman-Rubin R-hat across chains**: $\hat{R} \leq \text{rhat\_max}$.
+1. **ESS via Sokal autocorrelation**: $N / (2\, \tau_{\text{int}}) \geq$ `ess_min`.
+2. **Gelman-Rubin R-hat across chains**: $\hat{R} \leq$ `rhat_max`.
 """
 )
 

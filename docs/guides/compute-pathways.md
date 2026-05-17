@@ -18,7 +18,7 @@ for path, prob in zip(ens.paths, ens.probabilities, strict=True):
 ## `greedy_walk` (deterministic, single max-prob walk)
 
 Greedy descent on the transition matrix: at each step, hop to the neighbor
-with the largest off-diagonal `P_ij`. Stops on a target hit, fixed point,
+with the largest off-diagonal $P_{ij}$. Stops on a target hit, fixed point,
 or cycle:
 
 ```python

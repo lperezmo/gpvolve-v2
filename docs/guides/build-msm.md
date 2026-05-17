@@ -33,7 +33,7 @@ P = build_transition_matrix(
 `P` is a `scipy.sparse.csr_matrix`. Rows sum to 1.0 within 1e-12; every
 entry is in `[0, 1]`; the sparsity pattern equals `graph.edges` plus the
 diagonal. Diagonal entries are computed last as `1 - sum_j P_ij` (this is
-the v1 bug 2 fix: never evaluate the fixation kernel at `f_i == f_j`).
+the v1 bug 2 fix: never evaluate the fixation kernel at $f_i = f_j$).
 
 ## 3. Wrap it in an MSM
 

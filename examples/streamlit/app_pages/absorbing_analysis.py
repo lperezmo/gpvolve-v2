@@ -26,7 +26,7 @@ from gpvolve import (
 from gpvolve.exceptions import GpvolveError
 from utils import build_msm
 
-st.title("Absorbing-chain analysis")
+st.markdown("### Absorbing-chain analysis")
 
 st.markdown(
     r"""

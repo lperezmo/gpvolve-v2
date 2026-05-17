@@ -12,7 +12,7 @@ import streamlit as st
 from gpvolve import coarse_grain, metastable_sets, pcca_plus
 from utils import build_msm
 
-st.title("PCCA+ metastable clustering")
+st.markdown("### PCCA+ metastable clustering")
 
 st.markdown(
     r"""

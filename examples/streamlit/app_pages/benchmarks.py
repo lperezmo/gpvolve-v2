@@ -27,7 +27,7 @@ from gpvolve import (
 import gpvolve.paths.stochastic as stochastic
 import gpvolve.paths.tpt as tpt
 
-st.title("Benchmarks")
+st.markdown("### Benchmarks")
 
 st.markdown(
     """

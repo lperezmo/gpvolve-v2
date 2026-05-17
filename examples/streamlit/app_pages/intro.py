@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-st.title("gpvolve-v2")
+st.markdown("### gpvolve-v2")
 
 st.markdown(
     """

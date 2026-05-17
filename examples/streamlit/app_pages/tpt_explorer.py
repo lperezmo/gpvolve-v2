@@ -21,7 +21,7 @@ from gpvolve import (
 from gpvolve.exceptions import GpvolveError
 from utils import build_msm
 
-st.title("Transition Path Theory")
+st.markdown("### Transition Path Theory")
 
 st.markdown(
     r"""

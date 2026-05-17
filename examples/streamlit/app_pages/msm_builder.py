@@ -13,7 +13,7 @@ import numpy as np
 import streamlit as st
 from utils import build_msm
 
-st.title("MSM builder")
+st.markdown("### MSM builder")
 
 st.markdown(
     r"""

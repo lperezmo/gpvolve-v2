@@ -15,7 +15,7 @@ from gpvolve import ConvergenceCheck, sample_paths
 import gpvolve.paths.stochastic as stochastic
 from utils import build_msm
 
-st.title("Stochastic walker sampler")
+st.markdown("### Stochastic walker sampler")
 
 st.markdown(
     r"""
@@ -24,13 +24,14 @@ sampler stops on **both** of the following per-endpoint criteria:
 
 1. **ESS via Sokal autocorrelation**: $N / (2\, \tau_{\text{int}}) \geq \text{ess\_min}$.
 2. **Gelman-Rubin R-hat across chains**: $\hat{R} \leq \text{rhat\_max}$.
+"""
+)
 
-The Rust backend is currently
-**{rust_status}**; speedup vs the pure-Python fallback is typically
-several hundred fold on rugged landscapes.
-""".format(
-        rust_status="enabled" if stochastic._RUST_AVAILABLE else "disabled (CPU fallback)"
-    )
+_rust_status = "enabled" if stochastic._RUST_AVAILABLE else "disabled (CPU fallback)"
+st.markdown(
+    f"The Rust backend is currently **{_rust_status}**; speedup vs the "
+    "pure-Python fallback is typically several hundred fold on rugged "
+    "landscapes."
 )
 
 col = st.columns(3)

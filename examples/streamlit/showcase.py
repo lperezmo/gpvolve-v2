@@ -10,6 +10,16 @@ st.set_page_config(
     layout="wide",
 )
 
+st.markdown(
+    """
+    <style>
+      .block-container { padding-top: 1.25rem; padding-bottom: 2rem; }
+      header[data-testid="stHeader"] { background: transparent; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 pages = [
     st.Page("app_pages/intro.py", title="Intro", icon=":material/home:"),
     st.Page("app_pages/msm_builder.py", title="MSM builder", icon=":material/hub:"),

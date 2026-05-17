@@ -117,7 +117,6 @@ def fuji_5_sswm_msm():
 
     import numpy as np
     from gpgraph import GenotypePhenotypeGraph
-
     from gpvolve import GenotypePhenotypeMSM
 
     alph = ("A", "T")

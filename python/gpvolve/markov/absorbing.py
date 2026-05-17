@@ -43,9 +43,7 @@ from numpy.typing import NDArray
 from gpvolve.exceptions import ConvergenceError, GpvolveError
 
 
-def _resolve_absorbing(
-    matrix: sp.spmatrix, absorbing: Iterable[int] | None
-) -> NDArray[np.int64]:
+def _resolve_absorbing(matrix: sp.spmatrix, absorbing: Iterable[int] | None) -> NDArray[np.int64]:
     """Return absorbing state indices, computing them if not provided."""
     if absorbing is None:
         from gpvolve.markov.validation import absorbing_states
@@ -155,9 +153,7 @@ def absorption_probabilities(
     n = matrix.shape[0]
     abs_idx = _resolve_absorbing(matrix, absorbing)
     if abs_idx.size == 0:
-        raise GpvolveError(
-            "absorption_probabilities requires at least one absorbing state"
-        )
+        raise GpvolveError("absorption_probabilities requires at least one absorbing state")
     if abs_idx.size == n:
         # All states absorb in themselves; B is the identity.
         return np.eye(n, dtype=np.float64), np.empty(0, dtype=np.int64), abs_idx
@@ -391,13 +387,9 @@ def quasi_stationary_distribution(
     n = matrix.shape[0]
     abs_idx = _resolve_absorbing(matrix, absorbing)
     if abs_idx.size == 0:
-        raise GpvolveError(
-            "quasi_stationary_distribution requires at least one absorbing state"
-        )
+        raise GpvolveError("quasi_stationary_distribution requires at least one absorbing state")
     if abs_idx.size == n:
-        raise GpvolveError(
-            "all states are absorbing; no transient class on which to define a QSD"
-        )
+        raise GpvolveError("all states are absorbing; no transient class on which to define a QSD")
 
     mask = np.ones(n, dtype=bool)
     mask[abs_idx] = False
@@ -423,9 +415,7 @@ def quasi_stationary_distribution(
     return full, transient_idx, float(lam)
 
 
-def _qsd_power(
-    Q: sp.spmatrix, *, max_iter: int, tol: float
-) -> tuple[NDArray[np.float64], float]:
+def _qsd_power(Q: sp.spmatrix, *, max_iter: int, tol: float) -> tuple[NDArray[np.float64], float]:
     """Left power iteration on Q: u_{k+1} = u_k Q / |u_k Q|_1.
 
     Converges geometrically at rate |lambda_2 / lambda_1| for the leading

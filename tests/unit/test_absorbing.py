@@ -53,9 +53,7 @@ class TestFundamentalMatrix:
         assert N.shape == (2, 2)
         assert trans_idx.tolist() == [0, 1]
 
-    def test_expected_visits_match_geometric_intuition(
-        self, two_sink_chain: sp.csr_matrix
-    ) -> None:
+    def test_expected_visits_match_geometric_intuition(self, two_sink_chain: sp.csr_matrix) -> None:
         """For the two-sink chain, expected visits to state 0 from state 0 should
         exceed 1 because the state has a 50% self-loop and a 10% return route via
         state 1. Solve (I - Q) N = I analytically and cross-check."""
@@ -97,9 +95,7 @@ class TestAbsorptionProbabilities:
         np.testing.assert_allclose(B[1, 0], 1 / 6, rtol=1e-10)
         np.testing.assert_allclose(B[1, 1], 5 / 6, rtol=1e-10)
 
-    def test_rugged_landscape_basins(
-        self, rugged_graph_8: GenotypePhenotypeGraph
-    ) -> None:
+    def test_rugged_landscape_basins(self, rugged_graph_8: GenotypePhenotypeGraph) -> None:
         """In a two-peak SSWM landscape, absorption probabilities partition each
         transient state's basin assignment. Every row of B sums to 1."""
         T = build_transition_matrix(rugged_graph_8, fitness_column="phenotypes", fixation="sswm")
@@ -166,9 +162,7 @@ class TestConditionalMfpt:
         m_cond = conditional_mfpt(T, A=[0, 1, 2], B=3)
         np.testing.assert_allclose(m_cond, m_uncond[[0, 1, 2]], rtol=1e-10)
 
-    def test_two_sink_chain_conditional_makes_finite(
-        self, two_sink_chain: sp.csr_matrix
-    ) -> None:
+    def test_two_sink_chain_conditional_makes_finite(self, two_sink_chain: sp.csr_matrix) -> None:
         """mfpt(P, 2) is undefined here (competing sink 3); conditional_mfpt is
         finite."""
         with pytest.raises(GpvolveError, match="outside the target set"):

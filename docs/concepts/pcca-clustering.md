@@ -22,8 +22,13 @@ non-negative. `metastable_sets` returns one int array per cluster; together
 they partition the state space.
 
 `coarse_grain` applies the Galerkin projection
-`P_coarse = (chi^T D chi)^{-1} chi^T D P chi` (with `D = diag(pi)`) to
-produce a row-stochastic transition matrix on the metastable basins.
+
+$$
+P_{\text{coarse}} \;=\; (\chi^{\top} D \chi)^{-1} \, \chi^{\top} D P \chi
+$$
+
+with $D = \operatorname{diag}(\pi)$, to produce a row-stochastic transition
+matrix on the metastable basins.
 
 ## Implementation notes
 

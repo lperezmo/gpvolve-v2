@@ -5,7 +5,7 @@ Four families of pathways. Pick the one that matches your question.
 ## `shortest_paths` (deterministic, single path per target)
 
 The shortest path is the path with maximum product of transition
-probabilities (equivalently, minimum sum of `-log P_ij`):
+probabilities (equivalently, minimum sum of $-\log P_{ij}$):
 
 ```python
 from gpvolve import shortest_paths

@@ -19,11 +19,16 @@ not pass.
 ## Reversibility
 
 A chain is reversible if detailed balance holds:
-`pi_i P_ij = pi_j P_ji` for every pair `(i, j)`. Under reversibility:
 
-- the backward committor equals `1 - q+`
-- the symmetric similarity `D^{1/2} P D^{-1/2}` (with `D = diag(pi)`) is
-  symmetric, so its eigenvectors are orthogonal
+$$
+\pi_i \, P_{ij} \;=\; \pi_j \, P_{ji}
+$$
+
+for every pair $(i, j)$. Under reversibility:
+
+- the backward committor equals $1 - q^{+}$
+- the symmetric similarity $D^{1/2} P D^{-1/2}$ (with $D = \operatorname{diag}(\pi)$)
+  is symmetric, so its eigenvectors are orthogonal
 - PCCA+ has an analytic refinement step
 
 gpvolve-v2 does not assume reversibility anywhere: the backward committor

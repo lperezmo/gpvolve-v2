@@ -12,17 +12,21 @@ row-stochastic and supported on the graph's edges plus the diagonal.
 
 Each off-diagonal entry has the form
 
-    P_ij = pi_fix(f_i, f_j) / k_max
+$$
+P_{ij} \;=\; \frac{\pi_{\text{fix}}(f_i, f_j)}{k_{\max}}
+$$
 
-where `pi_fix` is the fixation probability for a mutation from genotype `i`
-to a neighbor `j`, evaluated at fitnesses `f_i` and `f_j`, and `k_max` is
-the maximum out-degree of any node. The normalization by `k_max` is the
-discrete-time convention of Sailer and Harms (2017): in each time step the
-population attempts one mutation at one of `k_max` neighbor sites with equal
-probability, then accepts or rejects according to the fixation kernel. The
-diagonal entry is the residual:
+where $\pi_{\text{fix}}$ is the fixation probability for a mutation from
+genotype $i$ to a neighbor $j$, evaluated at fitnesses $f_i$ and $f_j$, and
+$k_{\max}$ is the maximum out-degree of any node. The normalization by
+$k_{\max}$ is the discrete-time convention of Sailer and Harms (2017): in
+each time step the population attempts one mutation at one of $k_{\max}$
+neighbor sites with equal probability, then accepts or rejects according to
+the fixation kernel. The diagonal entry is the residual:
 
-    P_ii = 1 - sum_{j neighbor of i} P_ij
+$$
+P_{ii} \;=\; 1 - \sum_{j \,\sim\, i} P_{ij}
+$$
 
 so the chain is row-stochastic by construction. gpvolve-v2 asserts this to
 `1e-12` after building the matrix and raises `NonStochasticError` if a

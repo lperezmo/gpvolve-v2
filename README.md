@@ -5,7 +5,7 @@
 [![PyPI](https://img.shields.io/pypi/v/gpvolve-v2.svg)](https://pypi.org/project/gpvolve-v2/)
 [![Python](https://img.shields.io/pypi/pyversions/gpvolve-v2.svg)](https://pypi.org/project/gpvolve-v2/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://gpvolve-v2.streamlit.app)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://gpvolve-v2.streamlit.app)
 
 Markov-chain evolutionary dynamics on genotype-phenotype maps. Rust-accelerated.
 

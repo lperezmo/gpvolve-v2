@@ -2,6 +2,9 @@
 
 Markov-chain evolutionary dynamics on genotype-phenotype maps.
 
+![Stationary distribution of the evolutionary Markov chain drawn on the genotype graph](assets/stationary-graph-light.png#only-light)
+![Stationary distribution of the evolutionary Markov chain drawn on the genotype graph](assets/stationary-graph-dark.png#only-dark)
+
 Given a genotype-phenotype map (`gpmap-v2`) and a graph over it (`gpgraph-v2`), gpvolve-v2
 builds a row-stochastic transition matrix using a fixation model (SSWM, Moran, McCandlish,
 Bloom DMS, weak-mutation) and analyzes the resulting Markov state model:

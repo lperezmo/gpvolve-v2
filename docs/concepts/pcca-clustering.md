@@ -7,6 +7,13 @@ identify `k` vertices of a simplex such that the rows of the eigenvector
 matrix project onto a row-stochastic membership matrix `chi` of shape
 `(n_states, k)`.
 
+![Genotype graph colored by PCCA+ metastable cluster assignment](../assets/pcca-clusters-light.png#only-light)
+![Genotype graph colored by PCCA+ metastable cluster assignment](../assets/pcca-clusters-dark.png#only-dark)
+
+Coloring each genotype by its dominant cluster membership shows the metastable
+basins PCCA+ recovers: groups of states the chain mixes within quickly but
+crosses between only rarely.
+
 ## API
 
 ```python

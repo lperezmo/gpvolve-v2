@@ -16,6 +16,13 @@ a row-stochastic transition matrix and computes stationary distributions, relaxa
 timescales, mean first passage times, transition path theory committors and reactive flux,
 dominant pathways, stochastic walker trajectories, PCCA+ metastable sets, and fitness peaks.
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/lperezmo/gpvolve-v2/main/docs/assets/stationary-graph-dark.png">
+    <img alt="Stationary distribution of the evolutionary Markov chain drawn on the genotype graph, node size and color set by stationary probability" src="https://raw.githubusercontent.com/lperezmo/gpvolve-v2/main/docs/assets/stationary-graph-light.png" width="620">
+  </picture>
+</p>
+
 This is a clean-break rewrite of [harmslab/gpvolve](https://github.com/harmslab/gpvolve)
 (dormant since 2020) with selective architectural inspiration from the
 [harmsm/gpvolve](https://github.com/harmsm/gpvolve) fork (dormant since 2022). The two
@@ -46,6 +53,13 @@ PCCA+ clustering, and a live Rust-vs-Python benchmark tab. Source under
   `python-semantic-release`. OIDC-based PyPI publishing.
 - **Consumes the v2 family.** Hard deps on `gpmap-v2` and `gpgraph-v2`; speaks their locked
   `SCHEMA.md` contracts.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/lperezmo/gpvolve-v2/main/docs/assets/rust-vs-python-dark.png">
+    <img alt="Rust versus pure-Python runtime for the walker sampler and committor solver across state-space sizes" src="https://raw.githubusercontent.com/lperezmo/gpvolve-v2/main/docs/assets/rust-vs-python-light.png" width="680">
+  </picture>
+</p>
 
 ## Install
 

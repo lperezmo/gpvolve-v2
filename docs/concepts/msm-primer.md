@@ -10,6 +10,13 @@ Markov chain on the genotype graph. The state space is the set of genotypes
 in the map (one per row of `gpm.data`); the transition matrix `P` is
 row-stochastic and supported on the graph's edges plus the diagonal.
 
+![Row-stochastic transition matrix of an L=4 MSM shown as a heatmap](../assets/transition-heatmap-light.png#only-light)
+![Row-stochastic transition matrix of an L=4 MSM shown as a heatmap](../assets/transition-heatmap-dark.png#only-dark)
+
+Each row of `P` sums to one. Most mass sits on the diagonal (self-loops absorb
+the probability not assigned to uphill moves), with off-diagonal entries only
+where the graph has an edge.
+
 Each off-diagonal entry has the form
 
 $$

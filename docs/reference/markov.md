@@ -3,6 +3,17 @@
 The MSM core: transition-matrix assembly, stationary, spectral analysis,
 container.
 
+![Relaxation timescales of the MSM from the subdominant eigenvalues, with a spectral gap](../assets/timescales-light.png#only-light)
+![Relaxation timescales of the MSM from the subdominant eigenvalues, with a spectral gap](../assets/timescales-dark.png#only-dark)
+
+The implied relaxation timescales come from the subdominant eigenvalues of `P`;
+a gap between two of them is the signal that the chain has that many metastable
+basins. Mean first passage times answer the complementary question of how long,
+on average, the chain takes to first reach each state:
+
+![Mean first passage time matrix between all state pairs shown as a heatmap](../assets/mfpt-matrix-light.png#only-light)
+![Mean first passage time matrix between all state pairs shown as a heatmap](../assets/mfpt-matrix-dark.png#only-dark)
+
 ## `GenotypePhenotypeMSM`
 
 Frozen-state container holding `(gpm, graph, transition_matrix, stationary,

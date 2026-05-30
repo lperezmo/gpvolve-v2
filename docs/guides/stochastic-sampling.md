@@ -16,6 +16,16 @@ Endpoints with empirical hit probability below `relevance_threshold` (default
 `1e-3`) are excluded from the check, so vanishingly-rare targets do not
 hold up convergence.
 
+![Stochastic walker trajectories traced across the genotype graph from wildtype](../assets/walker-trajectories-light.png#only-light)
+![Stochastic walker trajectories traced across the genotype graph from wildtype](../assets/walker-trajectories-dark.png#only-dark)
+
+Each walker is one Monte Carlo realization of the evolutionary chain; overlaying
+many traces shows which routes the ensemble actually takes. Sampling continues
+until both convergence diagnostics settle:
+
+![Sampler convergence: effective sample size rising and R-hat falling toward its threshold](../assets/sampler-convergence-light.png#only-light)
+![Sampler convergence: effective sample size rising and R-hat falling toward its threshold](../assets/sampler-convergence-dark.png#only-dark)
+
 ## v1 vs v2
 
 v1 stopped on a Euclidean distance threshold over the empirical path

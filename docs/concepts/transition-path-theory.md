@@ -4,6 +4,17 @@ TPT gives a probability-flux decomposition of an MSM between two state sets
 `A` (source) and `B` (target). gpvolve-v2 implements the Berezhkovskii,
 Hummer, Szabo (2009) formulation. No `msmtools` dependency.
 
+![Forward committor drawn on the genotype graph as a gradient from source to target](../assets/committor-graph-light.png#only-light)
+![Forward committor drawn on the genotype graph as a gradient from source to target](../assets/committor-graph-dark.png#only-dark)
+
+The forward committor colors each genotype by its probability of reaching the
+target peak before returning to the source: a smooth gradient from 0 at `A` to
+1 at `B`. The reactive flux then shows where the probability current actually
+flows between them.
+
+![Reactive flux between source and target highlighting the dominant transition channels](../assets/reactive-flux-light.png#only-light)
+![Reactive flux between source and target highlighting the dominant transition channels](../assets/reactive-flux-dark.png#only-dark)
+
 ## The four quantities
 
 **Forward committor.**

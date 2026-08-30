@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# Build and test jobs need no write access. Publishing jobs opt in below.
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest

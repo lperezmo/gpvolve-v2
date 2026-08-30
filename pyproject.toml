@@ -1,6 +1,6 @@
 [project]
 name = "gpvolve-v2"
-version = "1.2.1"
+version = "1.2.2"
 description = "Markov-chain evolutionary dynamics on genotype-phenotype maps. Rust-accelerated."
 readme = "README.md"
 requires-python = ">=3.11"

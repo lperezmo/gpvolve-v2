@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v1.2.2 (2026-08-30)
+
+### Bug Fixes
+
+- **security**: Declare least-privilege workflow permissions
+  ([`5b7d8d0`](https://github.com/lperezmo/gpvolve-v2/commit/5b7d8d0c4fca9d89eeaa37a5ff424040783c40f3))
+
+
 ## v1.2.1 (2026-08-30)
 
 ### Bug Fixes

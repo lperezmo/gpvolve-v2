@@ -1,6 +1,108 @@
 # CHANGELOG
 
 
+## v1.2.1 (2026-08-30)
+
+### Bug Fixes
+
+- **deps**: Patch crossbeam-epoch pointer formatting unsoundness
+  ([`8fbefcc`](https://github.com/lperezmo/gpvolve-v2/commit/8fbefcc3029e54e6d97974129b2e2cf3df0800b3))
+
+- **deps**: Refresh vulnerable Python dependency locks
+  ([`082ec03`](https://github.com/lperezmo/gpvolve-v2/commit/082ec0388f56f9090e565a65b8630de59931d933))
+
+### Chores
+
+- Bump pyo3, starlette, python-multipart for security alerts
+  ([`c035d57`](https://github.com/lperezmo/gpvolve-v2/commit/c035d57edb1d2d37285df84cf1945fad8e1e2f71))
+
+Resolve open Dependabot alerts across both ecosystems.
+
+pip (uv.lock, transitive via streamlit optional extra): - starlette 1.0.0 -> 1.3.1 -
+  python-multipart 0.0.28 -> 0.0.32
+
+rust (Cargo.toml + Cargo.lock): - pyo3 0.28 -> 0.29 (numpy bumped to 0.29 in lockstep)
+
+cargo check passes with no source changes; uv lock resolves cleanly.
+
+- Replace broken static.streamlit.io badge with shields.io
+  ([`e056040`](https://github.com/lperezmo/gpvolve-v2/commit/e0560401a85162f37c8255c81bae8b0e28a1220c))
+
+- Ruff format + sort conftest imports for CI lint
+  ([`a41d2b5`](https://github.com/lperezmo/gpvolve-v2/commit/a41d2b5f185be1e70fb8ef673d26180c17e8e57d))
+
+CI lint on the prior push caught: - conftest.py: imports inside the fuji_5_sswm_msm fixture were not
+  grouped by stdlib/third-party order. - absorbing.py and test_absorbing.py: lines longer than the
+  project's ruff format width.
+
+All four CI checks now pass locally: ruff check, ruff format --check, mypy, pytest
+  --cov-fail-under=80 (170 passed, 87% coverage).
+
+- **docs, streamlit**: Inline math instead of code for symbolic identifiers
+  ([`041bc81`](https://github.com/lperezmo/gpvolve-v2/commit/041bc8109f15bc334a1ffbdf15e09054d5f1c1f8))
+
+Several spots wrote mathematical identifiers in markdown code spans, which makes them render as
+  fixed-width code rather than italic math with proper subscripts. The R-hat / Tau / N rendering is
+  fine; the green-highlighted spots in the user-flagged screenshots are these:
+
+- examples/streamlit/app_pages/sampler.py: \text{ess\_min} and \text{rhat\_max} inside the LaTeX
+  math block looked like awkward italics with mid-name escaped underscores. Moved the variable names
+  out of math and into markdown code spans so they read as Python config names: ESS ... \geq
+  `ess_min`, R-hat \leq `rhat_max`. - docs/concepts/fixation-models.md: pair of fitnesses `(f_i,
+  f_j)` was a code span; switched to $(f_i, f_j)$ so the subscripts render. Same for the bare
+  allele/background indices `i` and `j`. - docs/guides/compute-pathways.md: `P_ij` -> $P_{ij}$. -
+  docs/guides/build-msm.md: `f_i == f_j` -> $f_i = f_j$ in the prose describing what the kernel is
+  not evaluated at.
+
+PCCA+ row-stochastic mid-word wrap on narrow mobile (third screenshot) is a Zensical/CSS hyphenation
+  artifact, not a markdown issue; leaving the source alone so we do not regress wider viewports.
+
+- **streamlit**: Fix sampler crash, theme config, tighter headers
+  ([`ef7aabe`](https://github.com/lperezmo/gpvolve-v2/commit/ef7aabe7c347579f9ca75d2bed1cf4c1d191e46a))
+
+- examples/streamlit/.streamlit/config.toml: themed colors + Inter and JetBrains Mono typography
+  copied from epistasis-v2 so the showcase matches the rest of the v2 family instead of the default
+  look. - app_pages/sampler.py: fix ValueError "unexpected '{' in field name" caught by Streamlit
+  Cloud at runtime. The page composed a raw string containing LaTeX braces (\tau_{\text{int}},
+  \text{ess\_min}) and then called .format() on it; Python's format parser saw the LaTeX braces as
+  malformed field names and refused. Split the markdown into a static raw-string block for the math
+  and a separate f-string for the dynamic Rust-backend status so the two never collide. -
+  showcase.py: inject .block-container { padding-top: 1.25rem } via st.markdown so the showcase
+  loses the chunky default top whitespace, matching the epistasis-v2 entrypoint pattern. - All 8
+  pages: replace st.title("...") with st.markdown("### ...") so the page headers are H3 rather than
+  the oversized default H1.
+
+### Documentation
+
+- Add light/dark gallery images to docs and README
+  ([`c002f83`](https://github.com/lperezmo/gpvolve-v2/commit/c002f83cb93dfbe08dddbc38b715f869ada8e656))
+
+Add transparent-background figures that adapt to light and dark themes: docs pages pair them with
+  #only-light / #only-dark, the README uses <picture> with prefers-color-scheme (absolute raw URLs
+  so they also resolve on PyPI, where <picture> degrades to the light <img>).
+
+Images: stationary-distribution hero graph, transition-matrix heatmap, TPT committor gradient and
+  reactive flux on the graph, PCCA+ metastable clusters, stochastic walker trajectories, sampler
+  convergence (ESS and R-hat), relaxation timescales, MFPT matrix, and the Rust-vs-Python benchmark.
+  Transparent backgrounds blend into any page background without a visible seam.
+
+Docs-only change; no package code touched.
+
+- Make graph node labels legible in both light and dark mode
+  ([`0704139`](https://github.com/lperezmo/gpvolve-v2/commit/0704139b05f0a475e7ff72952b9a97866a81e078))
+
+The Hamming-graph figures (stationary distribution, committor, reactive flux, walker trajectories)
+  colored each node by a scalar (pi, q+, phenotype) but drew the genotype label and node outline in
+  a single per-variant ink: black in the light PNG, white in the dark PNG. That ink matched some of
+  the node fills exactly, so labels vanished: black text on the near-black low-pi nodes in light
+  mode, white text on the yellow peak node in dark mode.
+
+Node label and outline color are now chosen per node from each node's own fill luminance (dark ink
+  on light fills, light ink on dark fills). The fill is identical in both PNG variants, so the
+  chosen ink is too, and every label stays readable on whatever page background the docs or README
+  use. No manual color overrides needed.
+
+
 ## v1.2.0 (2026-05-17)
 
 ### Chores
